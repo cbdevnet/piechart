@@ -38,9 +38,7 @@ Because there seems to be no simple tool for creating basic pie charts from the 
 or at least my searches did not turn up anything useful. If you know of anything, please tell me :)
 
 ## Example output
-Output of `piechart tests/diag3 --order value,explode,color,legend > tests/diag3.svg`
-
-![Example pie chart](https://raw.githubusercontent.com/cbdevnet/piechart/master/tests/diag3.svg)
+[Output of `piechart tests/diag3 --order value,explode,color,legend > tests/diag3.svg`](tests/diag3.svg)
 
 ## License
 See [LICENSE.txt](LICENSE.txt)
