@@ -37,5 +37,10 @@ Since piechart outputs SVG data directly, all HTML/CSS colors may be used. This 
 Because there seems to be no simple tool for creating basic pie charts from the command line,
 or at least my searches did not turn up anything useful. If you know of anything, please tell me :)
 
+## Example output
+Output of `piechart tests/diag3 --order value,explode,color,legend > tests/diag3.svg`
+
+![Example pie chart](tests/diag3.svg)
+
 ## License
 See [LICENSE.txt](LICENSE.txt)
