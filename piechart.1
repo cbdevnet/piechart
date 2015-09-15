@@ -1,0 +1,86 @@
+.TH PIECHART 1 "September 2015" "v1.0"
+
+
+.SH NAME
+piechart \- Create SVG pie charts
+
+
+.SH SYNOPSIS
+.BI "piechart [--delimiter " <delimiter> "] [--order " <order-spec> "] [--color random | --color " <color-spec> "]"
+.BI "[--border " <color-spec> "] [--explode " <offset> "] [--no-legend] " [inputfile]
+
+
+.SH DESCRIPTION
+.BR piechart " creates SVG pie charts from line data read from stdin or a specified"
+.IR inputfile "."
+
+
+.SH OPTIONS
+.TP
+.BI "--delimiter " <delimiter>
+Set the data delimiter. Default is ',' (Comma-separated values without quoting support).
+
+.TP
+.BI "--order " <order-spec>
+Specify a comma-separated ordering of slice properties in input lines.
+Valid properties are
+.RS
+.RS
+.BR ignore "	Ignore the data column."
+.RE
+.RS
+.BR value "	Treat column as absolute slice value."
+.RE
+.RS
+.BR legend "	Column specifies slice legend."
+.RE
+.RS
+.BR color "	Column specifies slice fill color."
+.RE
+.RS
+.BR explode "	Treat column as slice explode offset."
+.RE
+.RE
+.RS
+.RB "The default ordering is " "value,color,legend" "."
+.RE
+
+.TP
+.BI "--color " <color-spec>
+Set the default pie slice fill color. The special value
+.BR random " generates a random fill color for each slice."
+Color values assigned by data input supersede the default fill color.
+.RI "A " color-spec " may be any CSS compatible color name such as "
+.BR blue " or " red ", as well as any hex-encoded RGB value such as " #2342ff " or " #0fefe0 "."
+.RB "The default fill color is " white "."
+
+.TP
+.BI "--border " <color-spec>
+Set the slice border color.
+.RB "The default border color is " black "."
+
+.TP
+.BI "--explode " <offset>
+Set the default explode offset for all slices. Individual slices may have this value overriden by
+values in the input data.
+
+.TP
+.B "--no-legend"
+Do not print legend Text.
+
+.TP
+.I inputfile
+File to read input data from. If not specified, data is expected on the standard input.
+
+
+.SH BUGS
+.BR --no-legend " currently does nothing."
+
+.SH AUTHOR
+cbdev <cb at cbcdn dot com>
+
+
+.SH SEE ALSO
+For other graphing tools, check
+.BR graphviz "(7) for handling actual graphs and"
+.BR gnuplot "(1) for creating function plots."
