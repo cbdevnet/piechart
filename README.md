@@ -40,7 +40,7 @@ or at least my searches did not turn up anything useful. If you know of anything
 ## Example output
 Output of `piechart tests/diag3 --order value,explode,color,legend > tests/diag3.svg`
 
-![Example pie chart](tests/diag3.svg)
+![Example pie chart](https://raw.githubusercontent.com/cbdevnet/piechart/master/tests/diag3.svg)
 
 ## License
 See [LICENSE.txt](LICENSE.txt)
