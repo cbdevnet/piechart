@@ -214,7 +214,7 @@ int main(int argc, char** argv){
 
 					switch(props[i]){
 						case IGNORE:
-							continue;
+							break;
 						case LEGEND:
 							if(!current.legend){
 								current.legend = strdup(token);
