@@ -15,19 +15,22 @@ typedef struct /*_PIE_SLICE*/ {
 	int slice_x;
 	int slice_y;
 	int bigarc_flag;
+	int offset_x;
+	int offset_y;
 } PIE_SLICE;
 
 typedef enum {
 	IGNORE,
 	LEGEND,
 	COLOR,
-	VALUE
+	VALUE,
+	EXPLODE
 } SLICE_PROP;
 
 int usage(char* fn){
 	printf("piechart - Creates SVG pie charts\n");
 	printf("piechart reads data to be plotted from stdin and outputs the resulting plot to stdout\n");
-	printf("Usage: %s [--delimiter <delim>] [--order <order-spec>] [--default-color <random | color-spec>] [--border <color-spec>] [--no-legend] [inputfile]\n", fn);
+	printf("Usage: %s [--delimiter <delim>] [--order <order-spec>] [--color <random | color-spec>] [--border <color-spec>] [--explode <offset>] [--no-legend] [inputfile]\n", fn);
 	return 1;
 }
 
@@ -48,6 +51,7 @@ int main(int argc, char** argv){
 	char* default_fill = "white";
 	char* border_color = "black";
 	bool print_legend = true;
+	int explode_offset = 0;
 
 	char* line_buffer = NULL;
 	size_t line_buffer_length = 0;
@@ -94,9 +98,17 @@ int main(int argc, char** argv){
 				exit(usage(argv[0]));
 			}
 		}
-		else if(!strcmp(argv[i], "--default-color")){
+		else if(!strcmp(argv[i], "--color")){
 			if(i + 1 < argc){
 				default_fill = argv[++i];
+			}
+			else{
+				exit(usage(argv[0]));
+			}
+		}
+		else if(!strcmp(argv[i], "--explode")){
+			if(i + 1 < argc){
+				explode_offset = strtoul(argv[++i], NULL, 10);
 			}
 			else{
 				exit(usage(argv[0]));
@@ -160,6 +172,9 @@ int main(int argc, char** argv){
 			else if(!strcmp(token, "value")){
 				props[i] = VALUE;
 			}
+			else if(!strcmp(token, "explode")){
+				props[i] = EXPLODE;
+			}
 			else{
 				fprintf(stderr, "No such property: %s\n", token);
 				free(props);
@@ -184,7 +199,9 @@ int main(int argc, char** argv){
 			PIE_SLICE current = {
 				.legend = NULL,
 				.color = NULL,
-				.absolute = 0
+				.absolute = 0,
+				.offset_x = explode_offset,
+				.offset_y = explode_offset
 			};
 
 			i = 0;
@@ -212,6 +229,10 @@ int main(int argc, char** argv){
 							if(!current.absolute){
 								current.absolute = strtod(token, NULL);
 							}
+							break;
+						case EXPLODE:
+							current.offset_x = strtoul(token, NULL, 10);
+							current.offset_y = strtoul(token, NULL, 10);
 							break;
 					}
 				}
@@ -250,10 +271,13 @@ int main(int argc, char** argv){
 
 	for(i = 0; i < num_slices; i++){
 		slices[i].relative = slices[i].absolute / slice_sum;
-		slices[i].bigarc_flag = ((slices[i].relative * 360) > 180) ? 1:0;
+		int offset_angle = current_angle + slices[i].relative * 180;
 		current_angle += slices[i].relative * 360;
+		slices[i].bigarc_flag = ((slices[i].relative * 360) > 180) ? 1:0;
 		slices[i].slice_x = sin(current_angle * M_PI / 180) * PIE.radius;
 		slices[i].slice_y = -cos(current_angle * M_PI / 180) * PIE.radius;
+		slices[i].offset_x *= sin(offset_angle * M_PI / 180);
+		slices[i].offset_y *= -cos(offset_angle * M_PI / 180);
 	}
 	
 	//print svg header
@@ -270,6 +294,7 @@ int main(int argc, char** argv){
 
 		fprintf(stdout, "<path d=\""); //begin path
 		fprintf(stdout, "M%d,%d ", PIE.origin_x, PIE.origin_y); //move to origin
+		fprintf(stdout, "m%d,%d ", slices[i].offset_x, slices[i].offset_y); //explode
 		fprintf(stdout, "l%d,%d ", slices[last_slice].slice_x, slices[last_slice].slice_y); //line to last slice end
 		fprintf(stdout, "a%d,%d 0 %d,1 %d,%d ", PIE.radius, PIE.radius, slices[i].bigarc_flag, slices[i].slice_x - slices[last_slice].slice_x, slices[i].slice_y - slices[last_slice].slice_y);
 		//fprintf(stdout, "l%d,%d ", slices[i].slice_x - slices[last_slice].slice_x, slices[i].slice_y - slices[last_slice].slice_y);
