@@ -12,9 +12,9 @@ Argument                | Effect                                                
 --delimiter *delimiter* | Set input property delimiter                                        | `,`
 --order *property-list* | Set input property order (see below)                                | `value,color,legend`
 --color *color-spec*    | Set slice default fill color (may be overridden by input data)      | `white`
---border *color-spec    | Set slice border color                                              | `black`
+--border *color-spec*   | Set slice border color                                              | `black`
 --explode *offset*      | Set slice default explode offset (may be overridden by input data)  | `0`
---no-legend             | Disable legend text output (currently not implemented)              | -
+--no-legend             | Disable legend text output                                          | -
 *inputfile*             | Read data from *inputfile* instead of the standard input            | `stdin`
 
 ### Specifying property order
@@ -38,7 +38,7 @@ Because there seems to be no simple tool for creating basic pie charts from the 
 or at least my searches did not turn up anything useful. If you know of anything, please tell me :)
 
 ## Example output
-[Output of `piechart tests/diag3 --order value,explode,color,legend > tests/diag3.svg`](tests/diag3.svg)
+[Output of](tests/diag3.svg) `piechart tests/diag3 --order value,explode,color,legend > tests/diag3.svg`
 
 ## License
 See [LICENSE.txt](LICENSE.txt)

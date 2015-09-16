@@ -314,8 +314,8 @@ int main(int argc, char** argv){
 		//fprintf(stdout, "l%d,%d ", slices[i].slice_x - slices[last_slice].slice_x, slices[i].slice_y - slices[last_slice].slice_y);
 		fprintf(stdout, "z\" fill=\"%s\" stroke=\"%s\" stroke-width=\"1\" stroke-linejoin=\"round\" />\n", slices[i].color ? slices[i].color:default_fill, border_color);
 
-		if(print_legend){
-			fprintf(stdout, "<text text-anchor=\"%s\" x=\"%d\" y=\"%d\">%s</text>\n", slices[i].anchor_start ? "end":"start", slices[i].legend.x + PIE.origin.x, slices[i].legend.y + PIE.origin.y, slices[i].legend_text);	
+		if(print_legend && slices[i].legend_text){
+			fprintf(stdout, "<text text-anchor=\"%s\" x=\"%d\" y=\"%d\">%s</text>\n", slices[i].anchor_start ? "end":"start", slices[i].legend.x + slices[i].offset.x + PIE.origin.x, slices[i].legend.y + slices[i].offset.y + PIE.origin.y, slices[i].legend_text);
 		}
 	}
 
