@@ -1,5 +1,5 @@
 # piechart
-Create SVG pie charts directly from the command line!
+Create SVG pie charts directly from the command line!  
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/6382/badge.svg)](https://scan.coverity.com/projects/6382)
 
 ## Usage
