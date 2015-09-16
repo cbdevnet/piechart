@@ -4,6 +4,7 @@ Create SVG pie charts directly from the command line!
 
 ## Setup
 * Clone the repository
+* Make sure you have a working C compiler
 * Run `make` within the clone
 * Run `make install` as root to have piechart installed to your system
 
