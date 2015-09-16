@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg" version="1.1">
-<path d="M200,200 m6,-18 l0,-150 a150,150 0 0,1 96,36 z" fill="red" stroke="black" stroke-width="1" stroke-linejoin="round" />
-<text text-anchor="start" x="259" y="37">Red Test</text>
-<path d="M200,200 m0,0 l96,-114 a150,150 0 0,1 51,88 z" fill="yellow" stroke="black" stroke-width="1" stroke-linejoin="round" />
-<text text-anchor="start" x="334" y="123">Yellow Test</text>
-<path d="M200,200 m19,3 l147,-26 a150,150 0 0,1 -18,100 z" fill="blue" stroke="black" stroke-width="1" stroke-linejoin="round" />
-<text text-anchor="start" x="371" y="229">Blue Test</text>
-<path d="M200,200 m0,0 l129,74 a150,150 0 1,1 -129,-224 z" fill="green" stroke="black" stroke-width="1" stroke-linejoin="round" />
-<text text-anchor="end" x="66" y="277">Green Test</text>
+<svg width="700" height="600" xmlns="http://www.w3.org/2000/svg" version="1.1">
+<path d="M350,300 m6,-18 l0,-250 a250,250 0 0,1 160,59 z" fill="red" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="start" x="443" y="43">Red Test</text>
+<path d="M350,300 m0,0 l160,-191 a250,250 0 0,1 86,148 z" fill="yellow" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="start" x="570" y="173">Yellow Test</text>
+<path d="M350,300 m19,3 l246,-43 a250,250 0 0,1 -30,167 z" fill="blue" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="start" x="620" y="347">Blue Test</text>
+<path d="M350,300 m0,0 l216,124 a250,250 0 1,1 -216,-374 z" fill="green" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="end" x="130" y="427">Green Test</text>
 </svg>

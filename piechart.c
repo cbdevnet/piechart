@@ -69,10 +69,10 @@ int main(int argc, char** argv){
 		int radius;
 	} PIE = {
 		.origin = {
-			.x = 200,
-			.y = 200
+			.x = 350,
+			.y = 300
 		},
-		.radius = 150
+		.radius = 250
 	};
 
 	int current_angle = 0;
