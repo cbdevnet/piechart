@@ -7,16 +7,21 @@
 #include <math.h>
 #include "svg_header.h"
 
+typedef struct /*_2D_COORDS*/ {
+	int x;
+	int y;
+} COORDS;
+
 typedef struct /*_PIE_SLICE*/ {
-	char* legend;
+	char* legend_text;
 	char* color;
 	double absolute;
 	double relative;
-	int slice_x;
-	int slice_y;
+	COORDS slice;
+	COORDS offset;
+	COORDS legend;
 	int bigarc_flag;
-	int offset_x;
-	int offset_y;
+	bool anchor_start;
 } PIE_SLICE;
 
 typedef enum {
@@ -60,12 +65,13 @@ int main(int argc, char** argv){
 	double slice_sum = 0;
 
 	struct /*_PIE_CONFIG*/ {
-		int origin_x;
-		int origin_y;
+		COORDS origin;
 		int radius;
 	} PIE = {
-		.origin_x = 200,
-		.origin_y = 200,
+		.origin = {
+			.x = 200,
+			.y = 200
+		},
 		.radius = 150
 	};
 
@@ -197,11 +203,16 @@ int main(int argc, char** argv){
 		if(bytes_read > 0){
 			//fill the slice with data
 			PIE_SLICE current = {
-				.legend = NULL,
+				.legend_text = NULL,
 				.color = NULL,
 				.absolute = 0,
-				.offset_x = explode_offset,
-				.offset_y = explode_offset
+				.slice.x = PIE.radius,
+				.slice.y = PIE.radius,
+				.offset.x = explode_offset,
+				.offset.y = explode_offset,
+				.legend.x = PIE.radius + 5,
+				.legend.y = PIE.radius + 5,
+				.anchor_start = true
 			};
 
 			i = 0;
@@ -216,8 +227,8 @@ int main(int argc, char** argv){
 						case IGNORE:
 							break;
 						case LEGEND:
-							if(!current.legend){
-								current.legend = strdup(token);
+							if(!current.legend_text){
+								current.legend_text = strdup(token);
 							}
 							break;
 						case COLOR:
@@ -231,8 +242,8 @@ int main(int argc, char** argv){
 							}
 							break;
 						case EXPLODE:
-							current.offset_x = strtoul(token, NULL, 10);
-							current.offset_y = strtoul(token, NULL, 10);
+							current.offset.x = strtoul(token, NULL, 10);
+							current.offset.y = strtoul(token, NULL, 10);
 							break;
 					}
 				}
@@ -272,12 +283,15 @@ int main(int argc, char** argv){
 	for(i = 0; i < num_slices; i++){
 		slices[i].relative = slices[i].absolute / slice_sum;
 		int offset_angle = current_angle + slices[i].relative * 180;
+		slices[i].anchor_start = offset_angle > 180;
 		current_angle += slices[i].relative * 360;
 		slices[i].bigarc_flag = ((slices[i].relative * 360) > 180) ? 1:0;
-		slices[i].slice_x = sin(current_angle * M_PI / 180) * PIE.radius;
-		slices[i].slice_y = -cos(current_angle * M_PI / 180) * PIE.radius;
-		slices[i].offset_x *= sin(offset_angle * M_PI / 180);
-		slices[i].offset_y *= -cos(offset_angle * M_PI / 180);
+		slices[i].slice.x *= sin(current_angle * M_PI / 180);
+		slices[i].slice.y *= -cos(current_angle * M_PI / 180);
+		slices[i].offset.x *= sin(offset_angle * M_PI / 180);
+		slices[i].offset.y *= -cos(offset_angle * M_PI / 180);
+		slices[i].legend.x *= sin(offset_angle * M_PI / 180);
+		slices[i].legend.y *= -cos(offset_angle * M_PI / 180);
 	}
 	
 	//print svg header
@@ -293,12 +307,16 @@ int main(int argc, char** argv){
 		int last_slice = (i ? i - 1:num_slices - 1);
 
 		fprintf(stdout, "<path d=\""); //begin path
-		fprintf(stdout, "M%d,%d ", PIE.origin_x, PIE.origin_y); //move to origin
-		fprintf(stdout, "m%d,%d ", slices[i].offset_x, slices[i].offset_y); //explode
-		fprintf(stdout, "l%d,%d ", slices[last_slice].slice_x, slices[last_slice].slice_y); //line to last slice end
-		fprintf(stdout, "a%d,%d 0 %d,1 %d,%d ", PIE.radius, PIE.radius, slices[i].bigarc_flag, slices[i].slice_x - slices[last_slice].slice_x, slices[i].slice_y - slices[last_slice].slice_y);
+		fprintf(stdout, "M%d,%d ", PIE.origin.x, PIE.origin.y); //move to origin
+		fprintf(stdout, "m%d,%d ", slices[i].offset.x, slices[i].offset.y); //explode
+		fprintf(stdout, "l%d,%d ", slices[last_slice].slice.x, slices[last_slice].slice.y); //line to last slice end
+		fprintf(stdout, "a%d,%d 0 %d,1 %d,%d ", PIE.radius, PIE.radius, slices[i].bigarc_flag, slices[i].slice.x - slices[last_slice].slice.x, slices[i].slice.y - slices[last_slice].slice.y);
 		//fprintf(stdout, "l%d,%d ", slices[i].slice_x - slices[last_slice].slice_x, slices[i].slice_y - slices[last_slice].slice_y);
 		fprintf(stdout, "z\" fill=\"%s\" stroke=\"%s\" stroke-width=\"1\" stroke-linejoin=\"round\" />\n", slices[i].color ? slices[i].color:default_fill, border_color);
+
+		if(print_legend){
+			fprintf(stdout, "<text text-anchor=\"%s\" x=\"%d\" y=\"%d\">%s</text>\n", slices[i].anchor_start ? "end":"start", slices[i].legend.x + PIE.origin.x, slices[i].legend.y + PIE.origin.y, slices[i].legend_text);	
+		}
 	}
 
 	fputs("</svg>", stdout);
@@ -307,7 +325,7 @@ int main(int argc, char** argv){
 	if(slices){
 		for(i = 0; i < num_slices; i++){
 			free(slices[i].color);
-			free(slices[i].legend);
+			free(slices[i].legend_text);
 		}
 	}
 
