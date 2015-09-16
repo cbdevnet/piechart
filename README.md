@@ -2,6 +2,11 @@
 Create SVG pie charts directly from the command line!  
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/6382/badge.svg)](https://scan.coverity.com/projects/6382)
 
+## Setup
+* Clone the repository
+* Run `make` within the clone
+* Run `make install` as root to have piechart installed to your system
+
 ## Usage
 **piechart** expects one line of data per slice of the chart. Slice properties are separated by a `delimiter`
 (Default: `,`), with their order specified by the `--order` argument (Default: `value,color,legend`).

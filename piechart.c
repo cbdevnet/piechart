@@ -227,7 +227,7 @@ int main(int argc, char** argv){
 						case IGNORE:
 							break;
 						case LEGEND:
-							if(!current.legend_text){
+							if(!current.legend_text && strlen(token) > 0){
 								current.legend_text = strdup(token);
 							}
 							break;
