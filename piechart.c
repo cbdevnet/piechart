@@ -2,7 +2,6 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
-#include <malloc.h>
 #include <stdbool.h>
 #include <math.h>
 #include "svg_header.h"
