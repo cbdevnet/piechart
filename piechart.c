@@ -199,6 +199,10 @@ int main(int argc, char** argv){
 			line_buffer[i] = 0;
 		}
 
+		if(line_buffer[0] == '#'){
+			continue;
+		}
+
 		if(bytes_read > 0){
 			//fill the slice with data
 			PIE_SLICE current = {
