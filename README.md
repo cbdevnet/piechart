@@ -12,6 +12,7 @@ Create SVG pie charts directly from the command line!
 **piechart** expects one line of data per slice of the chart. Slice properties are separated by a `delimiter`
 (Default: `,`), with their order specified by the `--order` argument (Default: `value,color,legend`).
 Simply pipe your data into `piechart` or save it to a file and specify that as an argument.
+Input lines starting with a `#` are treated as comments.
 
 ## Arguments
 Argument                | Effect                                                              | Default
