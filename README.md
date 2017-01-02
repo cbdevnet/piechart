@@ -49,3 +49,6 @@ or at least my searches did not turn up anything useful. If you know of anything
 
 ## License
 See [LICENSE.txt](LICENSE.txt)
+
+## Bugs
+Please report any bugs or issues via the GitHub issue tracker.
