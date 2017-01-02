@@ -34,7 +34,7 @@ typedef enum {
 int usage(char* fn){
 	printf("piechart - Creates SVG pie charts\n");
 	printf("piechart reads data to be plotted from stdin and outputs the resulting plot to stdout\n");
-	printf("Usage: %s [--delimiter <delim>] [--order <order-spec>] [--color <random | color-spec>] [--border <color-spec>] [--explode <offset>] [--no-legend] [inputfile]\n", fn);
+	printf("Usage: %s [--delimiter <delim>] [--order <order-spec>] [--color <random | contrast | color-spec>] [--border <color-spec>] [--explode <offset>] [--no-legend] [inputfile]\n", fn);
 	return 1;
 }
 
@@ -282,7 +282,8 @@ int main(int argc, char** argv){
 	for(i = 0; i < num_slices; i++){
 		slice_sum += slices[i].absolute;
 	}
-
+	int r,g,b;
+	int hue = rand() % 360;
 	for(i = 0; i < num_slices; i++){
 		slices[i].relative = slices[i].absolute / slice_sum;
 		int offset_angle = current_angle + slices[i].relative * 180;
@@ -295,6 +296,53 @@ int main(int argc, char** argv){
 		slices[i].offset.y *= -cos(offset_angle * M_PI / 180);
 		slices[i].legend.x *= sin(offset_angle * M_PI / 180);
 		slices[i].legend.y *= -cos(offset_angle * M_PI / 180);
+		
+		if(!strcmp(default_fill, "contrast")){
+			hue = hue + 360.0 * i/ (num_slices + 1);
+			hue = hue % 360;
+			float saturation = 0.9;
+		  	float value = 0.9 * 255;
+
+			int hi = hue / 60;
+			float f = hue/60.0 - hi;
+			int p = value * ( 1- saturation);
+			int q =  value * (1-saturation * f);
+			int t = value * (1-saturation * ( 1 - f ));
+
+			if (hi == 0 || hi == 6) {
+				r = value;
+				g = t;
+				b = p;
+			}
+			if (hi == 1) {
+				r = q;
+				g = value;
+				b = p;
+			}
+			if (hi == 2) {
+				r = p;
+				g = value;
+				b = t;
+			}
+			if (hi == 3) {
+				r = p;
+				g = q;
+				b = value;
+			}
+
+			if (hi == 4) {
+				r = t;
+				g = p;
+				b = value;
+			}
+			if (hi == 5) {
+				r = value;
+				g = p;
+				b = q;
+			}
+			slices[i].color = calloc(8, sizeof(char));
+			snprintf(slices[i].color, 8, "#%02X%02X%02X", r, g, b);
+		}
 	}
 	
 	//print svg header
