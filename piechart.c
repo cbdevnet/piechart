@@ -74,6 +74,9 @@ int args_parse(int argc, char** argv){
 
 	//parse raw arguments
 	for(i = 0; i < argc; i++){
+		if(!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")){
+			return -1;
+		}
 		if(!strcmp(argv[i], "--delimiter")){
 			PIECHART.delimiter = argv[++i];
 		}
