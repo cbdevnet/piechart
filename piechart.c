@@ -201,6 +201,7 @@ void global_cleanup(){
 char* generate_color(char* mode, double current_angle){
 	char* color = calloc(8, sizeof(char));
 	static double base_hue;
+	static int current_contrast;
 	double current_hue;
 	unsigned red, green, blue;
 
@@ -211,13 +212,19 @@ char* generate_color(char* mode, double current_angle){
 	if(!strcmp(mode, "random")){
 		snprintf(color, 8, "#%02X%02X%02X", rand() % 255, rand() % 255, rand() % 255);
 	}
-	else if(!strcmp(mode, "hsl")){
-		double saturation = 0.9;
-		double value = 0.9;
+
+	if(!strcmp(mode, "contrast")){
+		current_contrast = current_contrast ? 0:1;
+		mode = "hsl";
+	}
+
+	if(!strcmp(mode, "hsl")){
+		double saturation = 1.0;
+		double value = 1.0;
 
 		//first-time initialization
 		base_hue = (base_hue) ? base_hue:(rand() % 359) + 1;
-		current_hue = fmod((base_hue + current_angle), 360.0);
+		current_hue = fmod((base_hue + current_angle + 180.0 * current_contrast), 360.0);
 
 		//convert to rgb
 		double chroma = value * saturation;
@@ -385,7 +392,9 @@ int main(int argc, char** argv){
 		slices[i].legend.y *= -cos(offset_angle * M_PI / 180);
 
 		//generate random color if requested
-		if(!slices[i].color && (!strcmp(PIECHART.default_fill, "random") || !strcmp(PIECHART.default_fill, "hsl"))){
+		if(!slices[i].color && (!strcmp(PIECHART.default_fill, "random") 
+					|| !strcmp(PIECHART.default_fill, "hsl")
+					|| !strcmp(PIECHART.default_fill, "contrast"))){
 			slices[i].color = generate_color(PIECHART.default_fill, current_angle);
 		}
 	}

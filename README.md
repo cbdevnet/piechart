@@ -39,8 +39,15 @@ Keyword       | Effect
 
 ### Specifying colors
 Since piechart outputs SVG data directly, all HTML/CSS colors may be used. This includes color names like 
-`blue` and `red` as well as hex-encoded colors such as `#12ab34`. The special colors `random` and `hsl`
-color the slices randomly or along an HSL cylinder, respectively.
+`blue` and `red` as well as hex-encoded colors such as `#12ab34`. 
+
+The following _special_ colors are supported
+
+Magic color	| Effect
+----------------|-------------------------------------------
+**random**	| Generate color at random
+**hsl**		| Generate colors along HSL cylinder
+**contrast**	| Try to maximize color contrast of neighboring slices
 
 ## Why
 Because there seems to be no simple tool for creating basic pie charts from the command line,

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="700" height="600" xmlns="http://www.w3.org/2000/svg" version="1.1">
+<path d="M350,300 m0,0 l0,-250 a250,250 0 0,1 32,3 z" fill="#8EFF00" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="start" x="363" y="46">test</text>
+<path d="M350,300 m0,0 l32,-247 a250,250 0 0,1 32,6 z" fill="#9000FF" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="start" x="398" y="50">test</text>
+<path d="M350,300 m0,0 l64,-241 a250,250 0 0,1 31,11 z" fill="#4EFF00" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="start" x="428" y="58">test</text>
+<path d="M350,300 m0,0 l95,-230 a250,250 0 0,1 29,14 z" fill="#D000FF" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="start" x="461" y="71">test</text>
+<path d="M350,300 m0,0 l124,-216 a250,250 0 0,1 28,18 z" fill="#0EFF00" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="start" x="488" y="87">test</text>
+<path d="M350,300 m0,0 l152,-198 a250,250 0 0,1 24,22 z" fill="#FF00EE" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="start" x="517" y="108">test</text>
+<path d="M350,300 m0,0 l176,-176 a250,250 0 0,1 22,24 z" fill="#00FF30" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="start" x="539" y="130">test</text>
+<path d="M350,300 m0,0 l198,-152 a250,250 0 0,1 18,27 z" fill="#FF00AE" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="start" x="561" y="158">test</text>
+<path d="M350,300 m0,0 l216,-125 a250,250 0 0,1 14,30 z" fill="#00FF70" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="start" x="577" y="185">test</text>
+<path d="M350,300 m0,0 l230,-95 a250,250 0 0,1 11,31 z" fill="#FF006E" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="start" x="591" y="217">test</text>
+<path d="M350,300 m0,0 l241,-64 a250,250 0 0,1 6,32 z" fill="#00FFB0" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="start" x="599" y="247">test</text>
+<path d="M350,300 m0,0 l247,-32 a250,250 0 0,1 3,32 z" fill="#FF002E" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="start" x="604" y="283">test</text>
+<path d="M350,300 m0,0 l250,0 a250,250 0 0,1 -3,32 z" fill="#00FFF0" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="start" x="604" y="313">test</text>
+<path d="M350,300 m0,0 l247,32 a250,250 0 0,1 -6,32 z" fill="#FF1000" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="start" x="600" y="348">test</text>
+<path d="M350,300 m0,0 l241,64 a250,250 0 0,1 -11,31 z" fill="#00CEFF" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="start" x="592" y="378">test</text>
+<path d="M350,300 m0,0 l230,95 a250,250 0 0,1 -14,29 z" fill="#FF5000" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="start" x="579" y="411">test</text>
+<path d="M350,300 m0,0 l216,124 a250,250 0 0,1 -18,28 z" fill="#008EFF" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="start" x="563" y="438">test</text>
+<path d="M350,300 m0,0 l198,152 a250,250 0 0,1 -22,24 z" fill="#FF9000" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="start" x="542" y="467">test</text>
+<path d="M350,300 m0,0 l176,176 a250,250 0 0,1 -24,22 z" fill="#004EFF" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="start" x="520" y="489">test</text>
+<path d="M350,300 m0,0 l152,198 a250,250 0 0,1 -28,18 z" fill="#FFD000" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="start" x="492" y="511">test</text>
+<path d="M350,300 m0,0 l124,216 a250,250 0 0,1 -29,14 z" fill="#000EFF" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="start" x="465" y="527">test</text>
+<path d="M350,300 m0,0 l95,230 a250,250 0 0,1 -31,11 z" fill="#EEFF00" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="start" x="433" y="541">test</text>
+<path d="M350,300 m0,0 l64,241 a250,250 0 0,1 -32,6 z" fill="#3000FF" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="start" x="403" y="549">test</text>
+<path d="M350,300 m0,0 l32,247 a250,250 0 0,1 -32,3 z" fill="#AEFF00" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="start" x="367" y="554">test</text>
+<path d="M350,300 m0,0 l0,250 a250,250 0 0,1 -32,-3 z" fill="#7000FF" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="end" x="337" y="554">test</text>
+<path d="M350,300 m0,0 l-32,247 a250,250 0 0,1 -32,-6 z" fill="#6EFF00" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="end" x="302" y="550">test</text>
+<path d="M350,300 m0,0 l-64,241 a250,250 0 0,1 -31,-11 z" fill="#B000FF" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="end" x="272" y="542">test</text>
+<path d="M350,300 m0,0 l-95,230 a250,250 0 0,1 -30,-14 z" fill="#2EFF00" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="end" x="239" y="529">test</text>
+<path d="M350,300 m0,0 l-125,216 a250,250 0 0,1 -27,-18 z" fill="#F000FF" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="end" x="212" y="513">test</text>
+<path d="M350,300 m0,0 l-152,198 a250,250 0 0,1 -24,-22 z" fill="#00FF11" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="end" x="183" y="492">test</text>
+<path d="M350,300 m0,0 l-176,176 a250,250 0 0,1 -22,-24 z" fill="#FF00CE" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="end" x="161" y="470">test</text>
+<path d="M350,300 m0,0 l-198,152 a250,250 0 0,1 -18,-27 z" fill="#00FF50" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="end" x="139" y="442">test</text>
+<path d="M350,300 m0,0 l-216,125 a250,250 0 0,1 -14,-30 z" fill="#FF008E" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="end" x="123" y="415">test</text>
+<path d="M350,300 m0,0 l-230,95 a250,250 0 0,1 -11,-31 z" fill="#00FF90" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="end" x="109" y="383">test</text>
+<path d="M350,300 m0,0 l-241,64 a250,250 0 0,1 -6,-32 z" fill="#FF004E" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="end" x="101" y="353">test</text>
+<path d="M350,300 m0,0 l-247,32 a250,250 0 0,1 -3,-32 z" fill="#00FFD0" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="end" x="96" y="317">test</text>
+<path d="M350,300 m0,0 l-250,0 a250,250 0 0,1 3,-32 z" fill="#FF000E" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="end" x="96" y="287">test</text>
+<path d="M350,300 m0,0 l-247,-32 a250,250 0 0,1 6,-32 z" fill="#00EDFF" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="end" x="100" y="252">test</text>
+<path d="M350,300 m0,0 l-241,-64 a250,250 0 0,1 11,-31 z" fill="#FF3000" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="end" x="108" y="222">test</text>
+<path d="M350,300 m0,0 l-230,-95 a250,250 0 0,1 14,-30 z" fill="#00AEFF" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="end" x="121" y="189">test</text>
+<path d="M350,300 m0,0 l-216,-125 a250,250 0 0,1 18,-27 z" fill="#FF7000" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="end" x="137" y="162">test</text>
+<path d="M350,300 m0,0 l-198,-152 a250,250 0 0,1 22,-24 z" fill="#006EFF" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="end" x="158" y="133">test</text>
+<path d="M350,300 m0,0 l-176,-176 a250,250 0 0,1 24,-22 z" fill="#FFB000" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="end" x="180" y="111">test</text>
+<path d="M350,300 m0,0 l-152,-198 a250,250 0 0,1 27,-18 z" fill="#002EFF" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="end" x="208" y="89">test</text>
+<path d="M350,300 m0,0 l-125,-216 a250,250 0 0,1 30,-14 z" fill="#FFF000" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="end" x="235" y="73">test</text>
+<path d="M350,300 m0,0 l-95,-230 a250,250 0 0,1 31,-11 z" fill="#1000FF" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="end" x="267" y="59">test</text>
+<path d="M350,300 m0,0 l-64,-241 a250,250 0 0,1 32,-6 z" fill="#CEFF00" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="end" x="297" y="51">test</text>
+<path d="M350,300 m0,0 l-32,-247 a250,250 0 0,1 32,-3 z" fill="#5000FF" stroke="black" stroke-width="1" stroke-linejoin="round" />
+<text text-anchor="end" x="333" y="46">test</text>
+</svg>

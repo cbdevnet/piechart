@@ -47,9 +47,17 @@ Valid properties are
 
 .TP
 .BI "--color " <color-spec>
-Set the default pie slice fill color. The special value
-.BR random " generates a random fill color for each slice while the value"
-.BR hsl " generates colors along a HSL cylinder."
+Set the default pie slice fill color. This supports several magic values
+.RS
+.RS
+.BR random "	Generates a random fill color for each slice"
+.RE
+.RS
+.BR hsl "		Generates colors along a HSL cylinder"
+.RE
+.RS
+.BR contrast "	Generates contrasting colors"
+.RE
 .R Color values assigned by data input supersede the default fill color.
 .br
 .RI "A " color-spec " may be any CSS compatible color name such as "
