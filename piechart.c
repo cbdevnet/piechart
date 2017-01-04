@@ -254,6 +254,7 @@ char* generate_color(char* mode, double current_angle){
 
 int main(int argc, char** argv){
 	int i = 0;
+	int global_rv = EXIT_SUCCESS;
 	unsigned num_slices = 0;
 	PIE_SLICE* slices = NULL;
 
@@ -332,6 +333,11 @@ int main(int argc, char** argv){
 						case VALUE:
 							if(!current.absolute){
 								current.absolute = strtod(token, NULL);
+								if(current.absolute < 0){
+									fprintf(stderr, "Piecharts with negative absolute values are not supported\n");
+									global_rv = EXIT_FAILURE;
+									goto bail;
+								}
 							}
 							break;
 						case EXPLODE:
@@ -348,6 +354,7 @@ int main(int argc, char** argv){
 			slices = realloc(slices, num_slices * sizeof(PIE_SLICE));
 			if(!slices){
 				fprintf(stderr, "Failed to allocate memory for pie slice\n");
+				global_rv = EXIT_FAILURE;
 				goto bail;
 			}
 			slices[num_slices - 1] = current;
@@ -355,6 +362,8 @@ int main(int argc, char** argv){
 	} while(bytes_read >= 0);
 
 	if(num_slices < 1){
+		fprintf(stderr, "No data input\n");
+		global_rv = EXIT_FAILURE;
 		goto bail;
 	}
 
@@ -428,5 +437,5 @@ int main(int argc, char** argv){
 	free(line_buffer);
 	free(slices);
 	global_cleanup();
-	return 0;
+	return global_rv;
 }
