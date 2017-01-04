@@ -11,18 +11,6 @@ typedef struct /*_2D_COORDS*/ {
 	int y;
 } COORDS;
 
-typedef struct /*_PIE_SLICE*/ {
-	char* legend_text;
-	char* color;
-	double absolute;
-	double relative;
-	COORDS slice;
-	COORDS offset;
-	COORDS legend;
-	int bigarc_flag;
-	bool anchor_start;
-} PIE_SLICE;
-
 typedef enum {
 	IGNORE,
 	LEGEND,
@@ -31,6 +19,46 @@ typedef enum {
 	EXPLODE
 } SLICE_PROP;
 
+typedef struct /*_PIE_SLICE*/ {
+	char* legend_text;	//slice description
+	char* color;		//color override
+	double absolute;	//absolute slice value from input
+	double relative;	//calculated relative slice size
+	COORDS slice;		//
+	COORDS offset;
+	COORDS legend;
+	int bigarc_flag;
+	bool anchor_start;
+} PIE_SLICE;
+
+struct /*_PIE_CONFIG*/ {
+	COORDS origin;
+	int radius;
+	FILE* input_handle;
+	unsigned num_props;
+	SLICE_PROP* props;
+
+	char* delimiter;
+	char* default_fill;
+	char* border_color;
+	bool print_legend;
+	int explode_offset;
+} PIECHART = {
+	.origin = {
+		.x = 350,
+		.y = 300
+	},
+	.radius = 250,
+	.num_props = 1,
+	.props = NULL,
+
+	.delimiter = ",",
+	.default_fill = "white",
+	.border_color = "black",
+	.print_legend = true,
+	.explode_offset = 0
+};
+
 int usage(char* fn){
 	printf("piechart - Creates SVG pie charts\n");
 	printf("piechart reads data to be plotted from stdin and outputs the resulting plot to stdout\n");
@@ -38,126 +66,80 @@ int usage(char* fn){
 	return 1;
 }
 
-int main(int argc, char** argv){
-	int i = 0;
-	unsigned num_slices = 0;
-	PIE_SLICE* slices = NULL;
-
-	char* input_order = strdup("value,color,legend"); //cant have this as constant string because we're calling strtok
-	char* token;
-	unsigned num_props = 0;
-	SLICE_PROP* props = NULL;
-
+int args_parse(int argc, char** argv){
+	int i;
+	char* token = NULL;
 	char* input_file = NULL;
-	FILE* input_handle = stdin;
+	char* input_order = strdup("value,color,legend"); //cant have this as constant string because we're calling strtok
 
-	char* delimiter = ",";
-	char* default_fill = "white";
-	char* border_color = "black";
-	bool print_legend = true;
-	int explode_offset = 0;
-
-	char* line_buffer = NULL;
-	size_t line_buffer_length = 0;
-	ssize_t bytes_read = 0;
-
-	double slice_sum = 0;
-
-	struct /*_PIE_CONFIG*/ {
-		COORDS origin;
-		int radius;
-	} PIE = {
-		.origin = {
-			.x = 350,
-			.y = 300
-		},
-		.radius = 250
-	};
-
-	int current_angle = 0;
-
-	//parse arguments
-	for(i = 1; i < argc; i++){
+	//parse raw arguments
+	for(i = 0; i < argc; i++){
 		if(!strcmp(argv[i], "--delimiter")){
-			if(i + 1 < argc){
-				delimiter = argv[++i];
-			}
-			else{
-				exit(usage(argv[0]));
-			}
+			PIECHART.delimiter = argv[++i];
 		}
 		else if(!strcmp(argv[i], "--order")){
-			if(i + 1 < argc){
+			if(argv[i + 1]){
 				free(input_order);
 				input_order = strdup(argv[++i]);
 			}
 			else{
-				exit(usage(argv[0]));
+				break;
 			}
 		}
 		else if(!strcmp(argv[i], "--border")){
-			if(i + 1 < argc){
-				border_color = argv[++i];
-			}
-			else{
-				exit(usage(argv[0]));
-			}
+			PIECHART.border_color = argv[++i];
 		}
 		else if(!strcmp(argv[i], "--color")){
-			if(i + 1 < argc){
-				default_fill = argv[++i];
-			}
-			else{
-				exit(usage(argv[0]));
-			}
+			PIECHART.default_fill = argv[++i];
 		}
 		else if(!strcmp(argv[i], "--explode")){
-			if(i + 1 < argc){
-				explode_offset = strtoul(argv[++i], NULL, 10);
+			if(argv[i + 1]){
+				PIECHART.explode_offset = strtoul(argv[++i], NULL, 10);
 			}
 			else{
-				exit(usage(argv[0]));
+				break;
 			}
 		}
 		else if(!strcmp(argv[i], "--no-legend")){
-			print_legend = false;
+			PIECHART.print_legend = false;
 		}
 		else{
 			input_file = argv[i];
 		}
 	}
 
-	if(input_file){
-		input_handle = fopen(input_file, "r");
+	//ensure arguments matched parameters
+	if(i - argc > 0){
+		fprintf(stderr, "Option expects a parameter: %s\n", argv[argc - 1]);
+		free(input_order);
+		return -1;
+	}
+
+	if(i - argc < 0){
+		fprintf(stderr, "Argument parsing stopped at parameter: %s\n", argv[i]);
+		free(input_order);
+		return -1;
 	}
 
 	//sanity check
-	if(!input_handle){
-		fprintf(stderr, "Failed to open input file %s\n", input_file);
+	if(strlen(input_order) < 4){
+		fprintf(stderr, "Invalid property order\n");
 		free(input_order);
-		exit(usage(argv[0]));
+		return -1;
 	}
 
-	if(strlen(input_order) < 4){
-		free(input_order);
-		fclose(input_handle);
-		exit(usage(argv[0]));
-	}
-	
 	//count props
 	for(i = 0; input_order[i]; i++){
 		if(input_order[i] == ','){
-			num_props++;
+			PIECHART.num_props++;
 		}
 	}
-	num_props += 1;
 
-	props = realloc(props, num_props * sizeof(SLICE_PROP));
-	if(!props){
+	PIECHART.props = calloc(PIECHART.num_props, sizeof(SLICE_PROP));
+	if(!PIECHART.props){
 		free(input_order);
-		fclose(input_handle);
 		fprintf(stderr, "Failed to allocate memory\n");
-		exit(1);
+		return -1;
 	}
 
 	//parse prop order
@@ -166,34 +148,77 @@ int main(int argc, char** argv){
 		token = strtok(i ? NULL:input_order, ",");
 		if(token){
 			if(!strcmp(token, "ignore")){
-				props[i] = IGNORE;
+				PIECHART.props[i] = IGNORE;
 			}
 			else if(!strcmp(token, "legend")){
-				props[i] = LEGEND;
+				PIECHART.props[i] = LEGEND;
 			}
 			else if(!strcmp(token, "color")){
-				props[i] = COLOR;
+				PIECHART.props[i] = COLOR;
 			}
 			else if(!strcmp(token, "value")){
-				props[i] = VALUE;
+				PIECHART.props[i] = VALUE;
 			}
 			else if(!strcmp(token, "explode")){
-				props[i] = EXPLODE;
+				PIECHART.props[i] = EXPLODE;
 			}
 			else{
 				fprintf(stderr, "No such property: %s\n", token);
-				free(props);
 				free(input_order);
-				fclose(input_handle);
-				exit(usage(argv[0]));
+				return -1;
 			}
 		}
 		i++;
 	} while(token);
 
+	//clean up
+	free(input_order);
+
+	//open input file if given
+	if(input_file){
+		PIECHART.input_handle = fopen(input_file, "r");
+	}
+	if(!PIECHART.input_handle){
+		fprintf(stderr, "Failed to open input file %s\n", input_file);
+		return -1;
+	}
+	return 0;
+}
+
+void global_cleanup(){
+	if(PIECHART.props){
+		free(PIECHART.props);
+	}
+
+	fclose(PIECHART.input_handle);
+}
+
+int main(int argc, char** argv){
+	int i = 0;
+	unsigned num_slices = 0;
+	PIE_SLICE* slices = NULL;
+	char* token = NULL;
+
+
+	char* line_buffer = NULL;
+	size_t line_buffer_length = 0;
+	ssize_t bytes_read = 0;
+
+	double slice_sum = 0;
+	int current_angle = 0;
+
+	//initialize in non-static context
+	PIECHART.input_handle = stdin;
+
+	//parse command line arguments
+	if(args_parse(argc - 1, argv + 1) < 0){
+		global_cleanup();
+		exit(usage(argv[0]));
+	}
+
 	//read lines into slices
 	do {
-		bytes_read = getline(&line_buffer, &line_buffer_length, input_handle);
+		bytes_read = getline(&line_buffer, &line_buffer_length, PIECHART.input_handle);
 		//kill the newline
 		for(i = bytes_read - 1; i >= 0 && isspace(line_buffer[i]); i--){
 			line_buffer[i] = 0;
@@ -209,24 +234,30 @@ int main(int argc, char** argv){
 				.legend_text = NULL,
 				.color = NULL,
 				.absolute = 0,
-				.slice.x = PIE.radius,
-				.slice.y = PIE.radius,
-				.offset.x = explode_offset,
-				.offset.y = explode_offset,
-				.legend.x = PIE.radius + 5,
-				.legend.y = PIE.radius + 5,
+				.slice = {
+					PIECHART.radius,
+					PIECHART.radius
+				},
+				.offset = {
+					PIECHART.explode_offset,
+					PIECHART.explode_offset
+				},
+				.legend = {
+					PIECHART.radius + 5,
+					PIECHART.radius + 5
+				},
 				.anchor_start = true
 			};
 
 			i = 0;
 			do {
-				token = strtok(i ? NULL:line_buffer, delimiter);
+				token = strtok(i ? NULL:line_buffer, PIECHART.delimiter);
 				if(token){
-					if(i >= num_props){
+					if(i >= PIECHART.num_props){
 						break;
 					}
 
-					switch(props[i]){
+					switch(PIECHART.props[i]){
 						case IGNORE:
 							break;
 						case LEGEND:
@@ -254,7 +285,7 @@ int main(int argc, char** argv){
 			} while(token);
 
 			//generate random color if wanted
-			if(!current.color && !strcmp(default_fill, "random")){
+			if(!current.color && !strcmp(PIECHART.default_fill, "random")){
 				current.color = calloc(8, sizeof(char));
 				if(current.color){
 					snprintf(current.color, 8, "#%02X%02X%02X", rand() % 255, rand() % 255, rand() % 255);
@@ -296,8 +327,8 @@ int main(int argc, char** argv){
 		slices[i].offset.y *= -cos(offset_angle * M_PI / 180);
 		slices[i].legend.x *= sin(offset_angle * M_PI / 180);
 		slices[i].legend.y *= -cos(offset_angle * M_PI / 180);
-		
-		if(!strcmp(default_fill, "contrast")){
+
+		if(!strcmp(PIECHART.default_fill, "contrast")){
 			hue = hue + 360.0 * i/ (num_slices + 1);
 			hue = hue % 360;
 			float saturation = 0.9;
@@ -344,10 +375,10 @@ int main(int argc, char** argv){
 			snprintf(slices[i].color, 8, "#%02X%02X%02X", r, g, b);
 		}
 	}
-	
+
 	//print svg header
 	fwrite(svg_header, 1, svg_header_len, stdout);
-	
+
 	//debug print data
 	//for(i = 0; i < num_slices; i++){
 	//	fprintf(stderr, "%d: end_x=%d, end_y=%d, arc=%d, abs=%f, rel=%f, col=%s, leg=%s\n", i, slices[i].slice_x, slices[i].slice_y, slices[i].bigarc_flag, slices[i].absolute, slices[i].relative, slices[i].color, slices[i].legend);
@@ -358,15 +389,24 @@ int main(int argc, char** argv){
 		int last_slice = (i ? i - 1:num_slices - 1);
 
 		fprintf(stdout, "<path d=\""); //begin path
-		fprintf(stdout, "M%d,%d ", PIE.origin.x, PIE.origin.y); //move to origin
+		fprintf(stdout, "M%d,%d ", PIECHART.origin.x, PIECHART.origin.y); //move to origin
 		fprintf(stdout, "m%d,%d ", slices[i].offset.x, slices[i].offset.y); //explode
 		fprintf(stdout, "l%d,%d ", slices[last_slice].slice.x, slices[last_slice].slice.y); //line to last slice end
-		fprintf(stdout, "a%d,%d 0 %d,1 %d,%d ", PIE.radius, PIE.radius, slices[i].bigarc_flag, slices[i].slice.x - slices[last_slice].slice.x, slices[i].slice.y - slices[last_slice].slice.y);
+		fprintf(stdout, "a%d,%d 0 %d,1 %d,%d ",
+				PIECHART.radius,
+				PIECHART.radius,
+				slices[i].bigarc_flag,
+				slices[i].slice.x - slices[last_slice].slice.x,
+				slices[i].slice.y - slices[last_slice].slice.y);
 		//fprintf(stdout, "l%d,%d ", slices[i].slice_x - slices[last_slice].slice_x, slices[i].slice_y - slices[last_slice].slice_y);
-		fprintf(stdout, "z\" fill=\"%s\" stroke=\"%s\" stroke-width=\"1\" stroke-linejoin=\"round\" />\n", slices[i].color ? slices[i].color:default_fill, border_color);
+		fprintf(stdout, "z\" fill=\"%s\" stroke=\"%s\" stroke-width=\"1\" stroke-linejoin=\"round\" />\n", slices[i].color ? slices[i].color:PIECHART.default_fill, PIECHART.border_color);
 
-		if(print_legend && slices[i].legend_text){
-			fprintf(stdout, "<text text-anchor=\"%s\" x=\"%d\" y=\"%d\">%s</text>\n", slices[i].anchor_start ? "end":"start", slices[i].legend.x + slices[i].offset.x + PIE.origin.x, slices[i].legend.y + slices[i].offset.y + PIE.origin.y, slices[i].legend_text);
+		if(PIECHART.print_legend && slices[i].legend_text){
+			fprintf(stdout, "<text text-anchor=\"%s\" x=\"%d\" y=\"%d\">%s</text>\n",
+					slices[i].anchor_start ? "end":"start",
+					slices[i].legend.x + slices[i].offset.x + PIECHART.origin.x,
+					slices[i].legend.y + slices[i].offset.y + PIECHART.origin.y,
+					slices[i].legend_text);
 		}
 	}
 
@@ -381,8 +421,7 @@ int main(int argc, char** argv){
 	}
 
 	free(line_buffer);
-	free(input_order);
 	free(slices);
-	free(props);
+	global_cleanup();
 	return 0;
 }
