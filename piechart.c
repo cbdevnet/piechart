@@ -190,22 +190,77 @@ void global_cleanup(){
 		free(PIECHART.props);
 	}
 
-	fclose(PIECHART.input_handle);
+	if(PIECHART.input_handle){
+		fclose(PIECHART.input_handle);
+	}
+}
+
+char* generate_color(char* mode, double current_angle){
+	char* color = calloc(8, sizeof(char));
+	static double base_hue;
+	double current_hue;
+	unsigned red, green, blue;
+
+	if(!color){
+		return NULL;
+	}
+
+	if(!strcmp(mode, "random")){
+		snprintf(color, 8, "#%02X%02X%02X", rand() % 255, rand() % 255, rand() % 255);
+	}
+	else if(!strcmp(mode, "hsl")){
+		double saturation = 0.9;
+		double value = 0.9;
+
+		//first-time initialization
+		base_hue = (base_hue) ? base_hue:(rand() % 359) + 1;
+		current_hue = fmod((base_hue + current_angle), 360.0);
+
+		//convert to rgb
+		double chroma = value * saturation;
+		red = green = blue = (value - chroma) * 255;
+
+		current_hue /= 60;
+		double x = chroma * (1 - fabs(fmod(current_hue, 2.0) - 1.0));
+
+		switch((int)floor(current_hue)){
+			case 0:
+			case 1:
+			case 6:
+				red += (floor(current_hue) == 1.0) ? x * 255 : chroma * 255;
+				green += (floor(current_hue) != 1.0) ? x * 255 : chroma * 255;
+				break;
+			case 2:
+			case 3:
+				green += (floor(current_hue) == 3.0) ? x * 255 : chroma * 255;
+				blue += (floor(current_hue) != 3.0) ? x * 255 : chroma * 255;
+				break;
+			case 4:
+			case 5:
+				red += (floor(current_hue) == 4.0) ? x * 255 : chroma * 255;
+				blue += (floor(current_hue) != 4.0) ? x * 255 : chroma * 255;
+				break;
+			default:
+				return NULL;
+		}
+		snprintf(color, 8, "#%02X%02X%02X", red, green, blue);
+	}
+
+	return color;
 }
 
 int main(int argc, char** argv){
 	int i = 0;
 	unsigned num_slices = 0;
 	PIE_SLICE* slices = NULL;
+
 	char* token = NULL;
-
-
 	char* line_buffer = NULL;
 	size_t line_buffer_length = 0;
 	ssize_t bytes_read = 0;
 
 	double slice_sum = 0;
-	int current_angle = 0;
+	double current_angle = 0;
 
 	//initialize in non-static context
 	PIECHART.input_handle = stdin;
@@ -249,6 +304,7 @@ int main(int argc, char** argv){
 				.anchor_start = true
 			};
 
+			//read properties
 			i = 0;
 			do {
 				token = strtok(i ? NULL:line_buffer, PIECHART.delimiter);
@@ -284,20 +340,11 @@ int main(int argc, char** argv){
 				i++;
 			} while(token);
 
-			//generate random color if wanted
-			if(!current.color && !strcmp(PIECHART.default_fill, "random")){
-				current.color = calloc(8, sizeof(char));
-				if(current.color){
-					snprintf(current.color, 8, "#%02X%02X%02X", rand() % 255, rand() % 255, rand() % 255);
-				}
-			}
-
 			//push the slice into the main array
 			num_slices++;
 			slices = realloc(slices, num_slices * sizeof(PIE_SLICE));
 			if(!slices){
 				fprintf(stderr, "Failed to allocate memory for pie slice\n");
-				//this is kinda not really nice to look at, but hey.
 				goto bail;
 			}
 			slices[num_slices - 1] = current;
@@ -305,16 +352,13 @@ int main(int argc, char** argv){
 	} while(bytes_read >= 0);
 
 	if(num_slices < 1){
-		//not ideal, meh
 		goto bail;
 	}
 
-	//calculate relative values and coordinates
+	//calculate relative values and coordinates as well as randomized colors
 	for(i = 0; i < num_slices; i++){
 		slice_sum += slices[i].absolute;
 	}
-	int r,g,b;
-	int hue = rand() % 360;
 	for(i = 0; i < num_slices; i++){
 		slices[i].relative = slices[i].absolute / slice_sum;
 		int offset_angle = current_angle + slices[i].relative * 180;
@@ -328,51 +372,9 @@ int main(int argc, char** argv){
 		slices[i].legend.x *= sin(offset_angle * M_PI / 180);
 		slices[i].legend.y *= -cos(offset_angle * M_PI / 180);
 
-		if(!strcmp(PIECHART.default_fill, "contrast")){
-			hue = hue + 360.0 * i/ (num_slices + 1);
-			hue = hue % 360;
-			float saturation = 0.9;
-		  	float value = 0.9 * 255;
-
-			int hi = hue / 60;
-			float f = hue/60.0 - hi;
-			int p = value * ( 1- saturation);
-			int q =  value * (1-saturation * f);
-			int t = value * (1-saturation * ( 1 - f ));
-
-			if (hi == 0 || hi == 6) {
-				r = value;
-				g = t;
-				b = p;
-			}
-			if (hi == 1) {
-				r = q;
-				g = value;
-				b = p;
-			}
-			if (hi == 2) {
-				r = p;
-				g = value;
-				b = t;
-			}
-			if (hi == 3) {
-				r = p;
-				g = q;
-				b = value;
-			}
-
-			if (hi == 4) {
-				r = t;
-				g = p;
-				b = value;
-			}
-			if (hi == 5) {
-				r = value;
-				g = p;
-				b = q;
-			}
-			slices[i].color = calloc(8, sizeof(char));
-			snprintf(slices[i].color, 8, "#%02X%02X%02X", r, g, b);
+		//generate random color if requested
+		if(!slices[i].color && (!strcmp(PIECHART.default_fill, "random") || !strcmp(PIECHART.default_fill, "hsl"))){
+			slices[i].color = generate_color(PIECHART.default_fill, current_angle);
 		}
 	}
 
