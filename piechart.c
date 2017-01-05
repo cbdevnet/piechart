@@ -218,10 +218,10 @@ char* generate_color(char* mode, double current_angle){
 
 	if(!strcmp(mode, "contrast")){
 		current_contrast = current_contrast ? 0:1;
-		mode = "hsl";
+		mode = "hsv";
 	}
 
-	if(!strcmp(mode, "hsl")){
+	if(!strcmp(mode, "hsv")){
 		double saturation = 1.0;
 		double value = 1.0;
 
@@ -397,7 +397,7 @@ int main(int argc, char** argv){
 
 		//generate random color if requested
 		if(!slices[i].color && (!strcmp(PIECHART.default_fill, "random") 
-					|| !strcmp(PIECHART.default_fill, "hsl")
+					|| !strcmp(PIECHART.default_fill, "hsv")
 					|| !strcmp(PIECHART.default_fill, "contrast"))){
 			slices[i].color = generate_color(PIECHART.default_fill, current_angle);
 		}

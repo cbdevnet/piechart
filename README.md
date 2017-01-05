@@ -46,7 +46,7 @@ The following _special_ colors are supported
 Magic color	| Effect
 ----------------|-------------------------------------------
 **random**	| Generate color at random
-**hsl**		| Generate colors along HSL cylinder
+**hsv**		| Generate colors along HSV cylinder
 **contrast**	| Try to maximize color contrast of neighboring slices
 
 ## Why
@@ -55,6 +55,10 @@ or at least my searches did not turn up anything useful. If you know of anything
 
 ## Example output
 [Output of](tests/diag3.svg) `piechart tests/diag3 --order value,explode,color,legend > tests/diag3.svg`
+
+[Output of](tests/diag4_contrast.svg) `piechart tests/diag4 --order value,legend --color contrast > tests/diag4_contrast.svg`
+
+[Output of](tests/diag4_hsv.svg) `piechart tests/diag4 --order value,legend --color hsv > tests/diag4_hsv.svg`
 
 ## License
 See [LICENSE.txt](LICENSE.txt)
