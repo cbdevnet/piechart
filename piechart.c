@@ -204,7 +204,7 @@ char* generate_color(char* mode, double current_angle){
 	static double base_hue;
 	static int current_contrast;
 	double current_hue;
-	unsigned red, green, blue;
+	unsigned red = 0, green = 0, blue = 0;
 
 	if(!color){
 		return NULL;
