@@ -75,6 +75,7 @@ int args_parse(int argc, char** argv){
 	//parse raw arguments
 	for(i = 0; i < argc; i++){
 		if(!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")){
+			free(input_order);
 			return -1;
 		}
 		if(!strcmp(argv[i], "--delimiter")){
@@ -210,7 +211,9 @@ char* generate_color(char* mode, double current_angle){
 	}
 
 	if(!strcmp(mode, "random")){
-		snprintf(color, 8, "#%02X%02X%02X", rand() % 255, rand() % 255, rand() % 255);
+		red = rand() % 255;
+		green = rand() % 255;
+		blue = rand() % 255;
 	}
 
 	if(!strcmp(mode, "contrast")){
@@ -251,11 +254,12 @@ char* generate_color(char* mode, double current_angle){
 				blue += (floor(current_hue) != 4.0) ? x * 255 : chroma * 255;
 				break;
 			default:
+				free(color);
 				return NULL;
 		}
-		snprintf(color, 8, "#%02X%02X%02X", red, green, blue);
 	}
 
+	snprintf(color, 8, "#%02X%02X%02X", red, green, blue);
 	return color;
 }
 
