@@ -35,7 +35,7 @@ struct /*_PIE_CONFIG*/ {
 	COORDS origin;
 	int radius;
 	FILE* input_handle;
-	unsigned num_props;
+	size_t num_props;
 	SLICE_PROP* props;
 
 	char* delimiter;
@@ -43,6 +43,9 @@ struct /*_PIE_CONFIG*/ {
 	char* border_color;
 	bool print_legend;
 	int explode_offset;
+
+	size_t num_slices;
+	PIE_SLICE* slices;
 } PIECHART = {
 	.origin = {
 		.x = 350,
@@ -56,7 +59,10 @@ struct /*_PIE_CONFIG*/ {
 	.default_fill = "white",
 	.border_color = "black",
 	.print_legend = true,
-	.explode_offset = 0
+	.explode_offset = 0,
+
+	.num_slices = 0,
+	.slices = NULL
 };
 
 int usage(char* fn){
@@ -190,12 +196,21 @@ int args_parse(int argc, char** argv){
 }
 
 void global_cleanup(){
+	size_t u;
 	if(PIECHART.props){
 		free(PIECHART.props);
 	}
 
 	if(PIECHART.input_handle){
 		fclose(PIECHART.input_handle);
+	}
+
+	if(PIECHART.slices){
+		for(u = 0; u < PIECHART.num_slices; u++){
+			free(PIECHART.slices[u].color);
+			free(PIECHART.slices[u].legend_text);
+		}
+		free(PIECHART.slices);
 	}
 }
 
@@ -263,28 +278,10 @@ char* generate_color(char* mode, double current_angle){
 	return color;
 }
 
-int main(int argc, char** argv){
-	int i = 0;
-	int global_rv = EXIT_SUCCESS;
-	unsigned num_slices = 0;
-	PIE_SLICE* slices = NULL;
-
-	char* token = NULL;
-	char* line_buffer = NULL;
+int gather_data(){
+	char* line_buffer = NULL, *token = NULL;
 	size_t line_buffer_length = 0;
-	ssize_t bytes_read = 0;
-
-	double slice_sum = 0;
-	double current_angle = 0;
-
-	//initialize in non-static context
-	PIECHART.input_handle = stdin;
-
-	//parse command line arguments
-	if(args_parse(argc - 1, argv + 1) < 0){
-		global_cleanup();
-		exit(usage(argv[0]));
-	}
+	ssize_t bytes_read = 0, i;
 
 	//read lines into slices
 	do {
@@ -346,8 +343,8 @@ int main(int argc, char** argv){
 								current.absolute = strtod(token, NULL);
 								if(current.absolute < 0){
 									fprintf(stderr, "Piecharts with negative absolute values are not supported\n");
-									global_rv = EXIT_FAILURE;
-									goto bail;
+									free(line_buffer);
+									return -1;
 								}
 							}
 							break;
@@ -361,48 +358,55 @@ int main(int argc, char** argv){
 			} while(token);
 
 			//push the slice into the main array
-			num_slices++;
-			slices = realloc(slices, num_slices * sizeof(PIE_SLICE));
-			if(!slices){
+			PIECHART.num_slices++;
+			PIECHART.slices = realloc(PIECHART.slices, PIECHART.num_slices * sizeof(PIE_SLICE));
+			if(!PIECHART.slices){
 				fprintf(stderr, "Failed to allocate memory for pie slice\n");
-				global_rv = EXIT_FAILURE;
-				goto bail;
+				return -1;
 			}
-			slices[num_slices - 1] = current;
+			PIECHART.slices[PIECHART.num_slices - 1] = current;
 		}
 	} while(bytes_read >= 0);
+	
+	free(line_buffer);
+	return 0;
+}
 
-	if(num_slices < 1){
-		fprintf(stderr, "No data input\n");
-		global_rv = EXIT_FAILURE;
-		goto bail;
-	}
+int calculate_slices(){
+	double slice_sum = 0;
+	double current_angle = 0;
+	int offset_angle;
+	ssize_t u;
 
 	//calculate relative values and coordinates as well as randomized colors
-	for(i = 0; i < num_slices; i++){
-		slice_sum += slices[i].absolute;
+	for(u = 0; u < PIECHART.num_slices; u++){
+		slice_sum += PIECHART.slices[u].absolute;
 	}
-	for(i = 0; i < num_slices; i++){
-		slices[i].relative = slices[i].absolute / slice_sum;
-		int offset_angle = current_angle + slices[i].relative * 180;
-		slices[i].anchor_start = offset_angle > 180;
-		current_angle += slices[i].relative * 360;
-		slices[i].bigarc_flag = ((slices[i].relative * 360) > 180) ? 1:0;
-		slices[i].slice.x *= sin(current_angle * M_PI / 180);
-		slices[i].slice.y *= -cos(current_angle * M_PI / 180);
-		slices[i].offset.x *= sin(offset_angle * M_PI / 180);
-		slices[i].offset.y *= -cos(offset_angle * M_PI / 180);
-		slices[i].legend.x *= sin(offset_angle * M_PI / 180);
-		slices[i].legend.y *= -cos(offset_angle * M_PI / 180);
+	for(u = 0; u < PIECHART.num_slices; u++){
+		PIECHART.slices[u].relative = PIECHART.slices[u].absolute / slice_sum;
+		offset_angle = current_angle + PIECHART.slices[u].relative * 180;
+		PIECHART.slices[u].anchor_start = offset_angle > 180;
+		current_angle += PIECHART.slices[u].relative * 360;
+		PIECHART.slices[u].bigarc_flag = ((PIECHART.slices[u].relative * 360) > 180) ? 1:0;
+		PIECHART.slices[u].slice.x *= sin(current_angle * M_PI / 180);
+		PIECHART.slices[u].slice.y *= -cos(current_angle * M_PI / 180);
+		PIECHART.slices[u].offset.x *= sin(offset_angle * M_PI / 180);
+		PIECHART.slices[u].offset.y *= -cos(offset_angle * M_PI / 180);
+		PIECHART.slices[u].legend.x *= sin(offset_angle * M_PI / 180);
+		PIECHART.slices[u].legend.y *= -cos(offset_angle * M_PI / 180);
 
 		//generate random color if requested
-		if(!slices[i].color && (!strcmp(PIECHART.default_fill, "random") 
+		if(!PIECHART.slices[u].color && (!strcmp(PIECHART.default_fill, "random") 
 					|| !strcmp(PIECHART.default_fill, "hsv")
 					|| !strcmp(PIECHART.default_fill, "contrast"))){
-			slices[i].color = generate_color(PIECHART.default_fill, current_angle);
+			PIECHART.slices[u].color = generate_color(PIECHART.default_fill, current_angle);
 		}
 	}
+	return 0;
+}
 
+int print_svg(){
+	size_t u;
 	//print svg header
 	fwrite(svg_header, 1, svg_header_len, stdout);
 
@@ -412,43 +416,65 @@ int main(int argc, char** argv){
 	//}
 
 	//print svg data
-	for(i = 0; i < num_slices; i++){
-		int last_slice = (i ? i - 1:num_slices - 1);
+	for(u = 0; u < PIECHART.num_slices; u++){
+		int last_slice = (u ? u - 1:PIECHART.num_slices - 1);
 
 		fprintf(stdout, "<path d=\""); //begin path
 		fprintf(stdout, "M%d,%d ", PIECHART.origin.x, PIECHART.origin.y); //move to origin
-		fprintf(stdout, "m%d,%d ", slices[i].offset.x, slices[i].offset.y); //explode
-		fprintf(stdout, "l%d,%d ", slices[last_slice].slice.x, slices[last_slice].slice.y); //line to last slice end
+		fprintf(stdout, "m%d,%d ", PIECHART.slices[u].offset.x, PIECHART.slices[u].offset.y); //explode
+		fprintf(stdout, "l%d,%d ", PIECHART.slices[last_slice].slice.x, PIECHART.slices[last_slice].slice.y); //line to last slice end
 		fprintf(stdout, "a%d,%d 0 %d,1 %d,%d ",
 				PIECHART.radius,
 				PIECHART.radius,
-				slices[i].bigarc_flag,
-				slices[i].slice.x - slices[last_slice].slice.x,
-				slices[i].slice.y - slices[last_slice].slice.y);
+				PIECHART.slices[u].bigarc_flag,
+				PIECHART.slices[u].slice.x - PIECHART.slices[last_slice].slice.x,
+				PIECHART.slices[u].slice.y - PIECHART.slices[last_slice].slice.y);
 		//fprintf(stdout, "l%d,%d ", slices[i].slice_x - slices[last_slice].slice_x, slices[i].slice_y - slices[last_slice].slice_y);
-		fprintf(stdout, "z\" fill=\"%s\" stroke=\"%s\" stroke-width=\"1\" stroke-linejoin=\"round\" />\n", slices[i].color ? slices[i].color:PIECHART.default_fill, PIECHART.border_color);
+		fprintf(stdout, "z\" fill=\"%s\" stroke=\"%s\" stroke-width=\"1\" stroke-linejoin=\"round\" />\n",
+				PIECHART.slices[u].color ? PIECHART.slices[u].color:PIECHART.default_fill, 
+				PIECHART.border_color);
 
-		if(PIECHART.print_legend && slices[i].legend_text){
+		if(PIECHART.print_legend && PIECHART.slices[u].legend_text){
 			fprintf(stdout, "<text text-anchor=\"%s\" x=\"%d\" y=\"%d\">%s</text>\n",
-					slices[i].anchor_start ? "end":"start",
-					slices[i].legend.x + slices[i].offset.x + PIECHART.origin.x,
-					slices[i].legend.y + slices[i].offset.y + PIECHART.origin.y,
-					slices[i].legend_text);
+					PIECHART.slices[u].anchor_start ? "end":"start",
+					PIECHART.slices[u].legend.x + PIECHART.slices[u].offset.x + PIECHART.origin.x,
+					PIECHART.slices[u].legend.y + PIECHART.slices[u].offset.y + PIECHART.origin.y,
+					PIECHART.slices[u].legend_text);
 		}
 	}
 
 	fputs("</svg>", stdout);
+	return 0;
+}
 
-	bail:
-	if(slices){
-		for(i = 0; i < num_slices; i++){
-			free(slices[i].color);
-			free(slices[i].legend_text);
-		}
+int main(int argc, char** argv){
+	//initialize in non-static context
+	PIECHART.input_handle = stdin;
+
+	//parse command line arguments
+	if(args_parse(argc - 1, argv + 1) < 0){
+		global_cleanup();
+		exit(usage(argv[0]));
 	}
 
-	free(line_buffer);
-	free(slices);
+	if(gather_data() < 0 || PIECHART.num_slices < 1){
+		fprintf(stderr, "Invalid data read\n");
+		global_cleanup();
+		exit(usage(argv[0]));
+	}
+
+	if(calculate_slices() < 0){
+		fprintf(stderr, "Failed to calculate slice extents\n");
+		global_cleanup();
+		exit(usage(argv[0]));
+	}
+
+	if(print_svg() < 0){
+		fprintf(stderr, "Failed to write SVG\n");
+		global_cleanup();
+		exit(usage(argv[0]));
+	}
+
 	global_cleanup();
-	return global_rv;
+	return 0;
 }
