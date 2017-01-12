@@ -245,8 +245,8 @@ char* generate_color(char* mode, double current_angle){
 		current_hue = fmod((base_hue + current_angle + 180.0 * current_contrast), 360.0);
 
 		//convert to rgb
-		double chroma = value * saturation;
-		red = green = blue = (value - chroma) * 255;
+		double chroma = value * saturation * 255;
+		red = green = blue = value * 255 - chroma;
 
 		current_hue /= 60;
 		double x = chroma * (1 - fabs(fmod(current_hue, 2.0) - 1.0));
@@ -255,18 +255,18 @@ char* generate_color(char* mode, double current_angle){
 			case 0:
 			case 1:
 			case 6:
-				red += (floor(current_hue) == 1.0) ? x * 255 : chroma * 255;
-				green += (floor(current_hue) != 1.0) ? x * 255 : chroma * 255;
+				red += (floor(current_hue) == 1.0) ? x : chroma;
+				green += (floor(current_hue) != 1.0) ? x : chroma;
 				break;
 			case 2:
 			case 3:
-				green += (floor(current_hue) == 3.0) ? x * 255 : chroma * 255;
-				blue += (floor(current_hue) != 3.0) ? x * 255 : chroma * 255;
+				green += (floor(current_hue) == 3.0) ? x : chroma;
+				blue += (floor(current_hue) != 3.0) ? x : chroma;
 				break;
 			case 4:
 			case 5:
-				red += (floor(current_hue) == 4.0) ? x * 255 : chroma * 255;
-				blue += (floor(current_hue) != 4.0) ? x * 255 : chroma * 255;
+				red += (floor(current_hue) == 4.0) ? x : chroma;
+				blue += (floor(current_hue) != 4.0) ? x : chroma;
 				break;
 			default:
 				free(color);
@@ -274,6 +274,10 @@ char* generate_color(char* mode, double current_angle){
 		}
 	}
 
+	//limit values
+	red = (red > 0xFF) ? 0xFF:red;
+	green = (green > 0xFF) ? 0xFF:green;
+	blue = (blue > 0xFF) ? 0xFF:blue;
 	snprintf(color, 8, "#%02X%02X%02X", red, green, blue);
 	return color;
 }
