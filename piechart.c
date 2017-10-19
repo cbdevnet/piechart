@@ -42,6 +42,7 @@ struct /*_PIE_CONFIG*/ {
 	char* default_fill;
 	char* border_color;
 	bool print_legend;
+	bool print_percent;
 	int explode_offset;
 
 	size_t num_slices;
@@ -59,6 +60,7 @@ struct /*_PIE_CONFIG*/ {
 	.default_fill = "white",
 	.border_color = "black",
 	.print_legend = true,
+	.print_percent = false,
 	.explode_offset = 0,
 
 	.num_slices = 0,
@@ -68,7 +70,7 @@ struct /*_PIE_CONFIG*/ {
 int usage(char* fn){
 	printf("piechart - Creates SVG pie charts\n");
 	printf("piechart reads data to be plotted from stdin and outputs the resulting plot to stdout\n");
-	printf("Usage: %s [--delimiter <delim>] [--order <order-spec>] [--color <random | contrast | color-spec>] [--border <color-spec>] [--explode <offset>] [--no-legend] [inputfile]\n", fn);
+	printf("Usage: %s [--delimiter <delim>] [--order <order-spec>] [--color <random | contrast | color-spec>] [--border <color-spec>] [--explode <offset>] [--no-legend] [--percent] [inputfile]\n", fn);
 	return 1;
 }
 
@@ -112,6 +114,9 @@ int args_parse(int argc, char** argv){
 		}
 		else if(!strcmp(argv[i], "--no-legend")){
 			PIECHART.print_legend = false;
+		}
+		else if(!strcmp(argv[i], "--percent")){
+			PIECHART.print_percent = true;
 		}
 		else{
 			input_file = argv[i];
@@ -214,7 +219,7 @@ void global_cleanup(){
 	}
 }
 
-char* generate_color(char* mode, double current_angle){
+char* generate_color(char* mode, int slice){
 	char* color = calloc(8, sizeof(char));
 	static double base_hue;
 	static int current_contrast;
@@ -242,7 +247,12 @@ char* generate_color(char* mode, double current_angle){
 
 		//first-time initialization
 		base_hue = (base_hue) ? base_hue:(rand() % 359) + 1;
-		current_hue = fmod((base_hue + current_angle + 180.0 * current_contrast), 360.0);
+		int slice_mod = slice % 3;
+		int diff = slice / 3;
+		// slice_mod 0 -> 0; slice_mod 0 -> -1, slice_mod 2 -> 1
+		current_hue = base_hue + diff * 20 - (slice_mod - 1) * 120;
+
+		//current_hue = fmod((base_hue + current_angle + 180.0 * current_contrast), 360.0);
 
 		//convert to rgb
 		double chroma = value * saturation * 255;
@@ -403,7 +413,7 @@ int calculate_slices(){
 		if(!PIECHART.slices[u].color && (!strcmp(PIECHART.default_fill, "random") 
 					|| !strcmp(PIECHART.default_fill, "hsv")
 					|| !strcmp(PIECHART.default_fill, "contrast"))){
-			PIECHART.slices[u].color = generate_color(PIECHART.default_fill, current_angle);
+			PIECHART.slices[u].color = generate_color(PIECHART.default_fill, u);
 		}
 	}
 	return 0;
@@ -437,8 +447,14 @@ int print_svg(){
 		fprintf(stdout, "z\" fill=\"%s\" stroke=\"%s\" stroke-width=\"1\" stroke-linejoin=\"round\" />\n",
 				PIECHART.slices[u].color ? PIECHART.slices[u].color:PIECHART.default_fill, 
 				PIECHART.border_color);
-
-		if(PIECHART.print_legend && PIECHART.slices[u].legend_text){
+		if(PIECHART.print_percent) {
+			fprintf(stdout, "<text text-anchor=\"%s\" x=\"%d\" y=\"%d\">%s, %.2f %%</text>\n",
+					PIECHART.slices[u].anchor_start ? "end":"start",
+					PIECHART.slices[u].legend.x + PIECHART.slices[u].offset.x + PIECHART.origin.x,
+					PIECHART.slices[u].legend.y + PIECHART.slices[u].offset.y + PIECHART.origin.y,
+					PIECHART.slices[u].legend_text, PIECHART.slices[u].relative * 100);
+		}
+		else if(PIECHART.print_legend && PIECHART.slices[u].legend_text){
 			fprintf(stdout, "<text text-anchor=\"%s\" x=\"%d\" y=\"%d\">%s</text>\n",
 					PIECHART.slices[u].anchor_start ? "end":"start",
 					PIECHART.slices[u].legend.x + PIECHART.slices[u].offset.x + PIECHART.origin.x,
