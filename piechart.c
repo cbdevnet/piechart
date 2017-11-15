@@ -447,7 +447,7 @@ int print_svg(){
 		fprintf(stdout, "z\" fill=\"%s\" stroke=\"%s\" stroke-width=\"1\" stroke-linejoin=\"round\" />\n",
 				PIECHART.slices[u].color ? PIECHART.slices[u].color:PIECHART.default_fill, 
 				PIECHART.border_color);
-		if(PIECHART.print_percent) {
+		if(PIECHART.print_percent && PIECHART.slices[u].legend_text) {
 			fprintf(stdout, "<text text-anchor=\"%s\" x=\"%d\" y=\"%d\">%s, %.2f %%</text>\n",
 					PIECHART.slices[u].anchor_start ? "end":"start",
 					PIECHART.slices[u].legend.x + PIECHART.slices[u].offset.x + PIECHART.origin.x,

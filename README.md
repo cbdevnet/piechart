@@ -23,6 +23,7 @@ Argument                | Effect                                                
 --border *color-spec*   | Set slice border color                                              | `black`
 --explode *offset*      | Set slice default explode offset (may be overridden by input data)  | `0`
 --no-legend             | Disable legend text output                                          | -
+--percent               | Print percentage right of legend text                               | -
 *inputfile*             | Read data from *inputfile* instead of the standard input            | `stdin`
 
 ### Specifying property order
