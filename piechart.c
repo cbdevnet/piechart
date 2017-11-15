@@ -447,19 +447,21 @@ int print_svg(){
 		fprintf(stdout, "z\" fill=\"%s\" stroke=\"%s\" stroke-width=\"1\" stroke-linejoin=\"round\" />\n",
 				PIECHART.slices[u].color ? PIECHART.slices[u].color:PIECHART.default_fill, 
 				PIECHART.border_color);
-		if(PIECHART.print_percent && PIECHART.slices[u].legend_text) {
-			fprintf(stdout, "<text text-anchor=\"%s\" x=\"%d\" y=\"%d\">%s, %.2f %%</text>\n",
+		if(PIECHART.print_legend && (PIECHART.slices[u].legend_text || PIECHART.print_percent)){
+			fprintf(stdout, "<text text-anchor=\"%s\" x=\"%d\" y=\"%d\">",
 					PIECHART.slices[u].anchor_start ? "end":"start",
 					PIECHART.slices[u].legend.x + PIECHART.slices[u].offset.x + PIECHART.origin.x,
-					PIECHART.slices[u].legend.y + PIECHART.slices[u].offset.y + PIECHART.origin.y,
-					PIECHART.slices[u].legend_text, PIECHART.slices[u].relative * 100);
-		}
-		else if(PIECHART.print_legend && PIECHART.slices[u].legend_text){
-			fprintf(stdout, "<text text-anchor=\"%s\" x=\"%d\" y=\"%d\">%s</text>\n",
-					PIECHART.slices[u].anchor_start ? "end":"start",
-					PIECHART.slices[u].legend.x + PIECHART.slices[u].offset.x + PIECHART.origin.x,
-					PIECHART.slices[u].legend.y + PIECHART.slices[u].offset.y + PIECHART.origin.y,
-					PIECHART.slices[u].legend_text);
+					PIECHART.slices[u].legend.y + PIECHART.slices[u].offset.y + PIECHART.origin.y);
+			if(PIECHART.slices[u].legend_text){
+				puts(PIECHART.slices[u].legend_text);
+			}
+			if(PIECHART.print_percent){
+				fprintf(stdout, "%s%.2f%%%s",
+						PIECHART.slices[u].legend_text ? " (":"",
+						PIECHART.slices[u].relative * 100,
+						PIECHART.slices[u].legend_text ? ")":"");
+			}
+			puts("</text>\n");
 		}
 	}
 
