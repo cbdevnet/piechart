@@ -7,7 +7,7 @@ piechart \- Create SVG pie charts
 
 .SH SYNOPSIS
 .BI "piechart [--delimiter " <delimiter> "] [--order " <order-spec> "] [--color random | --color " <color-spec> "]"
-.BI "[--border " <color-spec> "] [--explode " <offset> "] [--no-legend] " [inputfile]
+.BI "[--border " <color-spec> "] [--explode " <offset> "] [--no-legend] [--percent] " [inputfile]
 
 
 .SH DESCRIPTION
@@ -80,13 +80,17 @@ values in the input data.
 Do not print legend Text.
 
 .TP
+.B "--percent"
+Print calculated percentage right of legend text.
+
+.TP
 .I inputfile
 File to read input data from. If not specified, data is expected on the standard input.
 .RB "Lines starting with a " # " are treated as comments."
 
 
 .SH BUGS
-There does not seem to be anything here
+Negative input values are nonsensical in pie charts.
 
 
 .SH AUTHOR
