@@ -2,7 +2,8 @@ export PREFIX?=$(DESTDIR)/usr/bin
 export DOCDIR?=$(DESTDIR)/usr/share/man/man1
 .PHONY: clean
 
-CFLAGS=-Wall -g -lm
+CFLAGS=-Wall -g
+LDLIBS=-lm
 
 all: svg_header.h piechart.1.gz piechart
 
