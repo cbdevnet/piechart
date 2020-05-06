@@ -222,8 +222,8 @@ void global_cleanup(){
 char* generate_color(char* mode, int slice){
 	char* color = calloc(8, sizeof(char));
 	static double base_hue;
-	static int current_contrast;
-	double current_hue;
+	static int current_contrast = 0;
+	double current_hue = 0;
 	unsigned red = 0, green = 0, blue = 0;
 
 	if(!color){
@@ -261,7 +261,7 @@ char* generate_color(char* mode, int slice){
 		current_hue /= 60;
 		double x = chroma * (1 - fabs(fmod(current_hue, 2.0) - 1.0));
 
-		switch((int)floor(current_hue)){
+		switch((int)floor(current_hue) % 7){
 			case 0:
 			case 1:
 			case 6:
@@ -278,9 +278,6 @@ char* generate_color(char* mode, int slice){
 				red += (floor(current_hue) == 4.0) ? x : chroma;
 				blue += (floor(current_hue) != 4.0) ? x : chroma;
 				break;
-			default:
-				free(color);
-				return NULL;
 		}
 	}
 
